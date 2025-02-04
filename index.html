@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Text Folders</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .folder {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .folder input, .folder textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    .folder button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Text Folders</h1>
+  <div id="foldersContainer"></div>
+  <button onclick="addFolder()">Add New Folder</button>
+
+  <script>
+    // Check if folders already exist in localStorage
+    let folders = JSON.parse(localStorage.getItem('folders')) || [];
+
+    // Function to add a new folder
+    function addFolder() {
+      const folder = {
+        id: Date.now(),
+        name: '',
+        content: ''
+      };
+      folders.push(folder);
+      saveFolders();
+      renderFolders();
+    }
+
+    // Function to render folders on the page
+    function renderFolders() {
+      const container = document.getElementById('foldersContainer');
+      container.innerHTML = ''; // Clear current list of folders
+      folders.forEach(folder => {
+        const folderElement = document.createElement('div');
+        folderElement.className = 'folder';
+
+        folderElement.innerHTML = `
+          <input 
+            type="text" 
+            placeholder="Folder Name" 
+            value="${folder.name}" 
+            onchange="updateFolderName(${folder.id}, event)"
+          />
+          <textarea 
+            placeholder="Enter your text here..." 
+            rows="4" 
+            onchange="updateFolderContent(${folder.id}, event)"
+          >${folder.content}</textarea>
+          <button onclick="removeFolder(${folder.id})">Remove Folder</button>
+        `;
+        container.appendChild(folderElement);
+      });
+    }
+
+    // Function to update folder name
+    function updateFolderName(id, event) {
+      const folder = folders.find(f => f.id === id);
+      folder.name = event.target.value;
+      saveFolders();
+    }
+
+    // Function to update folder content
+    function updateFolderContent(id, event) {
+      const folder = folders.find(f => f.id === id);
+      folder.content = event.target.value;
+      saveFolders();
+    }
+
+    // Function to remove a folder
+    function removeFolder(id) {
+      const index = folders.findIndex(f => f.id === id);
+      if (index !== -1) {
+        folders.splice(index, 1);
+        saveFolders();
+        renderFolders();
+      }
+    }
+
+    // Function to save folders to localStorage
+    function saveFolders() {
+      localStorage.setItem('folders', JSON.stringify(folders));
+    }
+
+    // Initial rendering of folders on page load
+    renderFolders();
+  </script>
+</body>
+</html>
